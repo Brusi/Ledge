@@ -1,5 +1,4 @@
 #include "GameScene.h"
-
 #include "SparseMatrix.h"
 #include "GameTile.h"
 #include "KeyboardControl.h"
@@ -52,6 +51,8 @@ bool GameScene::init()
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
 
+	
+	// Mouse stuff
 	auto mouseListener = EventListenerMouse::create();
 	mouseListener->setEnabled(true);
 	mouseListener->onMouseDown = CC_CALLBACK_1(GameScene::onMouseDown, this);
@@ -61,9 +62,21 @@ bool GameScene::init()
 	};
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(mouseListener, this);
 
+	// Initialize the control to be the keyboard
 	_control.reset(new KeyboardControl(this));
 
+	// Turn on scheduler
 	this->scheduleUpdate();
+
+	// Create the player
+	// Sprite will be created in a factory method:
+	auto playerSprite = Sprite::create("player.png");
+	this->addChild(playerSprite);
+	_player.reset(new ActiveObject(playerSprite, Size(defs::SIZE, defs::SIZE * 2), Point(100,100)));
+
+
+
+
 
     return true;
 }
@@ -72,10 +85,13 @@ void GameScene::update(float dt)
 {
 	CCLOG("update dt=%f", dt);
 	if (_control->isKeyPressed(Control::LEFT)) {
-		this->setPositionX(this->getPositionX() - 1);
+		_player->setVelocity(Point(4, 0));
+		//this->setPositionX(this->getPositionX() - 1);
 	} else if (_control->isKeyPressed(Control::RIGHT)) {
-		this->setPositionX(this->getPositionX() + 1);
+		_player->setVelocity(Point(-4, 0));
+		//this->setPositionX(this->getPositionX() + 1);
 	}
+	_player->update();
 }
 
 void GameScene::menuCloseCallback(Ref* pSender)

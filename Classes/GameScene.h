@@ -5,6 +5,7 @@
 #include "GameTile.h"
 #include "SparseMatrix.h"
 #include "Control.h"
+#include "ActiveObject.h"
 
 class GameScene : public cocos2d::Layer
 {
@@ -32,11 +33,15 @@ private:
 	// Overrides update
 	void update(float dt) override;
 
+
 	// Level matrix
 	SparseMatrix<GameTile> _level;
 
 	// Control
 	std::unique_ptr<Control> _control;
+
+	// Player object TODO: change to player object
+	std::unique_ptr<ActiveObject> _player;
 
 };
 
