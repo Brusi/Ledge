@@ -39,6 +39,9 @@ public:
 	}
 
 	T defVal() const;
+
+	// Delete all entries.
+	void clear();
 	
 private:
 	// Matrix map
@@ -116,6 +119,17 @@ template <class T>
 T SparseMatrix<T>::defVal() const
 {
 	return defaultValue;
+}
+
+template <class T>
+void SparseMatrix<T>::clear()
+{
+	// While not empty, delete the first entry.
+	while (!_matrix.empty()) {
+		auto it = _matrix.begin();
+		auto key = it->first;
+		this->delAt(key);
+	}
 }
 
 

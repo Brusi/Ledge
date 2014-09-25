@@ -14,6 +14,7 @@ public:
 
 	GameTile() : _type(EMPTY), _time(0) {}
 	GameTile(IJ ij, Type type, int time, cocos2d::Node* parent) : _type(type), _time(time) {
+		// TODO: select graphics according to type
 		_node = cocos2d::Sprite::create("tile.png");
 		_node->setScale(defs::SCALE);
 		//_node->setAnchorPoint(cocos2d::Point(5,5));

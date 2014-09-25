@@ -59,38 +59,49 @@ bool GameScene::init()
 	mouseListener->onMouseScroll = [](Event* event) {
 		auto e = (EventMouse*)event;
 		CCLOG("Mouse Scroll detected, X: %f, Y: %f", e->getScrollX(), e->getScrollY());
+		
 	};
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(mouseListener, this);
 
 	// Initialize the control to be the keyboard
 	_control.reset(new KeyboardControl(this));
 
-	// Turn on scheduler
-	this->scheduleUpdate();
+	// Initialize the level
+	_level.reset(new SparseMatrix<GameTile>);
+
+	// DEBUG: make a row of tiles
+	for (int i = 0; i < 10; i++) {
+		addTile(IJ(i, 1), GameTile::SOLID, 10);
+	}
+
 
 	// Create the player
 	// Sprite will be created in a factory method:
 	auto playerSprite = Sprite::create("player.png");
+	playerSprite->setScale(defs::SCALE);
 	this->addChild(playerSprite);
-	_player.reset(new ActiveObject(playerSprite, Size(defs::SIZE, defs::SIZE * 2), Point(100,100)));
+	_player.reset(new Player(
+		playerSprite,
+		Size(defs::SIZE, defs::SIZE * 2),
+		Point(4,10),
+		_control.get(),
+		_level.get())
+	);
 
-
-
-
+	// Turn on scheduler
+	this->scheduleUpdate();
 
     return true;
 }
 
 void GameScene::update(float dt)
 {
-	CCLOG("update dt=%f", dt);
-	if (_control->isKeyPressed(Control::LEFT)) {
-		_player->setVelocity(Point(4, 0));
-		//this->setPositionX(this->getPositionX() - 1);
-	} else if (_control->isKeyPressed(Control::RIGHT)) {
-		_player->setVelocity(Point(-4, 0));
-		//this->setPositionX(this->getPositionX() + 1);
-	}
+	//CCLOG("update dt=%f", dt);
+	//if (_control->isKeyPressed(Control::LEFT)) {
+		//_player->setVelocity(Point(-0.2, 0));
+	//} else if (_control->isKeyPressed(Control::RIGHT)) {
+		//_player->setVelocity(Point(0.2, 0));
+	//}
 	_player->update();
 }
 
@@ -111,14 +122,14 @@ void GameScene::menuCloseCallback(Ref* pSender)
 void GameScene::addTile(IJ ij, GameTile::Type type, int time)
 {
 	GameTile t(ij, type, time, this);
-	_level.setAt(ij, t);
+	_level->setAt(ij, t);
 }
 
 void GameScene::removeTile(IJ ij)
 {
-	GameTile t = _level.getAt(ij);
+	GameTile t = _level->getAt(ij);
 	t.destroy();
-	_level.delAt(ij);
+	_level->delAt(ij);
 }
 
 void GameScene::onMouseDown(cocos2d::Event *event)
@@ -128,7 +139,7 @@ void GameScene::onMouseDown(cocos2d::Event *event)
 
 	IJ ij = IJ::fromPoint(e->getCursorX(), e->getCursorY() + this->getBoundingBox().size.height);
 	CCLOG("IJ: %d, %d", ij.i, ij.j);
-	if (!_level.hasAt(ij)) {
+	if (!_level->hasAt(ij)) {
 		addTile(ij, GameTile::SOLID, 10);
 	} else {
 		removeTile(ij);
